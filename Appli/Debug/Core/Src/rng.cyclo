@@ -1,0 +1,5 @@
+../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_ll_bus.h:1165:22:LL_AHB3_GRP1_EnableClock	1
+../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_ll_bus.h:1225:22:LL_AHB3_GRP1_DisableClock	1
+../Core/Src/rng.c:30:6:MX_RNG_Init	2
+../Core/Src/rng.c:52:6:HAL_RNG_MspInit	2
+../Core/Src/rng.c:68:6:HAL_RNG_MspDeInit	2

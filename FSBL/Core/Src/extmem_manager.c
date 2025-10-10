@@ -68,12 +68,13 @@ void MX_EXTMEM_MANAGER_Init(void)
   extmem_list_config[0].MemType = EXTMEM_NOR_SFDP;
   extmem_list_config[0].Handle = (void*)&hxspi2;
   extmem_list_config[0].ConfigType = EXTMEM_LINK_CONFIG_8LINES;
+  EXTMEM_Init(EXTMEMORY_1, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI2));
 
+#if (EXTMEM_DRIVER_PSRAM == 1)
   /* EXTMEMORY_2 */
   extmem_list_config[1].MemType = EXTMEM_PSRAM;
   extmem_list_config[1].Handle = (void*)&hxspi1;
   extmem_list_config[1].ConfigType = EXTMEM_LINK_CONFIG_16LINES;
-#if (EXTMEM_DRIVER_PSRAM == 1)
   extmem_list_config[1].PsramObject.psram_public.MemorySize = HAL_XSPI_SIZE_256MB;
   extmem_list_config[1].PsramObject.psram_public.FreqMax = 200 * 1000000u;
   extmem_list_config[1].PsramObject.psram_public.NumberOfConfig = 1u;
@@ -93,10 +94,6 @@ void MX_EXTMEM_MANAGER_Init(void)
   extmem_list_config[1].PsramObject.psram_public.Read_command      = 0x20u;
   extmem_list_config[1].PsramObject.psram_public.WrapRead_command  = 0x00u;
   extmem_list_config[1].PsramObject.psram_public.Read_DummyCycle   = 4u;
-#endif
-
-  EXTMEM_Init(EXTMEMORY_1, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI2));
-#if 0
   EXTMEM_Init(EXTMEMORY_2, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI1));
 #endif
 

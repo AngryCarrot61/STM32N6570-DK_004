@@ -43,6 +43,7 @@ void MX_XSPI1_Init(void)
   /* USER CODE BEGIN XSPI1_Init 1 */
 
   /* USER CODE END XSPI1_Init 1 */
+  /* XSPI1 parameter configuration*/
   hxspi1.Instance = XSPI1;
   hxspi1.Init.FifoThresholdByte = 4;
   hxspi1.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
@@ -90,17 +91,17 @@ void MX_XSPI2_Init(void)
 
   /* USER CODE END XSPI2_Init 1 */
   hxspi2.Instance = XSPI2;
-  hxspi2.Init.FifoThresholdByte = 4;
+  hxspi2.Init.FifoThresholdByte = 1;
   hxspi2.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
   hxspi2.Init.MemoryType = HAL_XSPI_MEMTYPE_MACRONIX;
   hxspi2.Init.MemorySize = HAL_XSPI_SIZE_1GB;
-  hxspi2.Init.ChipSelectHighTimeCycle = 2;
+  hxspi2.Init.ChipSelectHighTimeCycle = 1;
   hxspi2.Init.FreeRunningClock = HAL_XSPI_FREERUNCLK_DISABLE;
   hxspi2.Init.ClockMode = HAL_XSPI_CLOCK_MODE_0;
   hxspi2.Init.WrapSize = HAL_XSPI_WRAP_NOT_SUPPORTED;
-  hxspi2.Init.ClockPrescaler = 0;
+  hxspi2.Init.ClockPrescaler = 1;
   hxspi2.Init.SampleShifting = HAL_XSPI_SAMPLE_SHIFT_NONE;
-  hxspi2.Init.DelayHoldQuarterCycle = HAL_XSPI_DHQC_ENABLE;
+  hxspi2.Init.DelayHoldQuarterCycle = HAL_XSPI_DHQC_DISABLE;
   hxspi2.Init.ChipSelectBoundary = HAL_XSPI_BONDARYOF_NONE;
   hxspi2.Init.MaxTran = 0;
   hxspi2.Init.Refresh = 0;

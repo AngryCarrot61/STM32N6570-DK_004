@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "main.h"
 #include "crc.h"
 #include "app_filex.h"
@@ -63,6 +64,12 @@ static void SystemIsolation_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+int __io_putchar(int ch)
+{
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  return ch;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -94,13 +101,15 @@ int main(void)
 //  MX_LTDC_Init();
 //  MX_SDMMC2_SD_Init();
 //  MX_TIM2_Init();
-//  MX_USART1_UART_Init();
+  MX_USART1_UART_Init();
 //  MX_CRC_Init();
 //  MX_RNG_Init();
 //  MX_TIM3_Init();
 //  MX_FileX_Init();
   SystemIsolation_Config();
   /* USER CODE BEGIN 2 */
+
+  printf("Application running!\n");
 
   /* USER CODE END 2 */
 
