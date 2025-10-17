@@ -31,7 +31,7 @@ extern "C" {
 */
 
 #define EXTMEM_DRIVER_NOR_SFDP   1
-#define EXTMEM_DRIVER_PSRAM      0
+#define EXTMEM_DRIVER_PSRAM      1
 #define EXTMEM_DRIVER_SDCARD     0
 #define EXTMEM_DRIVER_USER       0
 
