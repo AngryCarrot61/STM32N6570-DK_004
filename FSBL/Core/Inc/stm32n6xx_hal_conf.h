@@ -171,6 +171,7 @@ extern "C" {
   *        for each PPP peripheral).
   */
 #define  USE_HAL_ADC_REGISTER_CALLBACKS       0U /* ADC register callback disabled       */
+#define  USE_HAL_CACHEAXI_REGISTER_CALLBACKS  0U /* CACHEAXI register callback disabled  */
 #define  USE_HAL_CRYP_REGISTER_CALLBACKS      0U /* CRYP register callback disabled      */
 #define  USE_HAL_DCMI_REGISTER_CALLBACKS      0U /* DCMI register callback disabled      */
 #define  USE_HAL_DCMIPP_REGISTER_CALLBACKS    0U /* DCMIPP register callback disabled    */
@@ -183,6 +184,7 @@ extern "C" {
 #define  USE_HAL_HASH_REGISTER_CALLBACKS      0U /* HASH register callback disabled      */
 #define  USE_HAL_HCD_REGISTER_CALLBACKS       0U /* HCD register callback disabled       */
 #define  USE_HAL_I2C_REGISTER_CALLBACKS       0U /* I2C register callback disabled       */
+#define  USE_HAL_I2S_REGISTER_CALLBACKS       0U /* I2S register callback disabled       */
 #define  USE_HAL_I3C_REGISTER_CALLBACKS       0U /* I3C register callback disabled       */
 #define  USE_HAL_IWDG_REGISTER_CALLBACKS      0U /* IWDG register callback disabled      */
 #define  USE_HAL_IRDA_REGISTER_CALLBACKS      0U /* IRDA register callback disabled      */
@@ -226,6 +228,10 @@ extern "C" {
 
 #define USE_SD_TRANSCEIVER            0U
 
+/* ################## SDIO peripheral configuration ######################### */
+
+#define USE_SDIO_TRANSCEIVER          0U
+#define SDIO_MAX_IO_NUMBER            7U
 
 /* Includes ------------------------------------------------------------------*/
 /**
@@ -246,6 +252,10 @@ extern "C" {
 #ifdef HAL_DMA_MODULE_ENABLED
 #include "stm32n6xx_hal_dma.h"
 #endif /* HAL_DMA_MODULE_ENABLED */
+
+#ifdef HAL_CACHEAXI_MODULE_ENABLED
+#include "stm32n6xx_hal_cacheaxi.h"
+#endif /* HAL_CACHEAXI_MODULE_ENABLED */
 
 #ifdef HAL_CORTEX_MODULE_ENABLED
 #include "stm32n6xx_hal_cortex.h"
@@ -307,6 +317,10 @@ extern "C" {
 #include "stm32n6xx_hal_gpio.h"
 #endif /* HAL_GPIO_MODULE_ENABLED */
 
+#ifdef HAL_GPU2D_MODULE_ENABLED
+#include "stm32n6xx_hal_gpu2d.h"
+#endif /* HAL_GPU2D_MODULE_ENABLED */
+
 #ifdef HAL_HASH_MODULE_ENABLED
 #include "stm32n6xx_hal_hash.h"
 #endif /* HAL_HASH_MODULE_ENABLED */
@@ -318,6 +332,10 @@ extern "C" {
 #ifdef HAL_I2C_MODULE_ENABLED
 #include "stm32n6xx_hal_i2c.h"
 #endif /* HAL_I2C_MODULE_ENABLED */
+
+#ifdef HAL_I2S_MODULE_ENABLED
+ #include "stm32n6xx_hal_i2s.h"
+#endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_I3C_MODULE_ENABLED
 #include "stm32n6xx_hal_i3c.h"
@@ -354,6 +372,10 @@ extern "C" {
 #ifdef HAL_MDF_MODULE_ENABLED
 #include "stm32n6xx_hal_mdf.h"
 #endif /* HAL_MDF_MODULE_ENABLED */
+
+#ifdef HAL_MDIOS_MODULE_ENABLED
+#include "stm32n6xx_hal_mdios.h"
+#endif /* HAL_MDIOS_MODULE_ENABLED */
 
 #ifdef HAL_MMC_MODULE_ENABLED
 #include "stm32n6xx_hal_mmc.h"
