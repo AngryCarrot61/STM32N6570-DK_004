@@ -1,6 +1,0 @@
-../Core/Src/stm32_extmem_conf.c:13:17:APS256_WriteReg	104	static
-../Core/Src/stm32_extmem_conf.c:57:17:APS256_ReadReg	104	static
-../Core/Src/stm32_extmem_conf.c:98:6:Configure_APMemory	32	static
-../Core/Src/stm32_extmem_conf.c:172:6:Configure_APMemory_Mapped_Mode	104	static
-../Core/Src/stm32_extmem_conf.c:220:6:Bypass_APMemory_Prescaler	8	static
-../Core/Src/stm32_extmem_conf.c:231:6:Map_APMemory	8	static
