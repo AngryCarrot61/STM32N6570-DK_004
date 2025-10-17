@@ -24,7 +24,6 @@
  extern "C" {
 #endif
 
-#define EXTMEM_DRIVER_PSRAM_1 1
 /* Includes ------------------------------------------------------------------*/
 #if EXTMEM_DRIVER_PSRAM == 1
    

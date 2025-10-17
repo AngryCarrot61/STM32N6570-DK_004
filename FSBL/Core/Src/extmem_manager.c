@@ -64,13 +64,15 @@ void MX_EXTMEM_MANAGER_Init(void)
   /* Initialization of the memory parameters */
   memset(extmem_list_config, 0x0, sizeof(extmem_list_config));
 
+#if (EXTMEM_DRIVER_NOR_SFDP)
   /* EXTMEMORY_1 */
   extmem_list_config[0].MemType = EXTMEM_NOR_SFDP;
   extmem_list_config[0].Handle = (void*)&hxspi2;
   extmem_list_config[0].ConfigType = EXTMEM_LINK_CONFIG_8LINES;
   EXTMEM_Init(EXTMEMORY_1, HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_XSPI2));
+#endif
 
-#if (EXTMEM_DRIVER_PSRAM == 1)
+#if (EXTMEM_DRIVER_PSRAM)
   /* EXTMEMORY_2 */
   extmem_list_config[1].MemType = EXTMEM_PSRAM;
   extmem_list_config[1].Handle = (void*)&hxspi1;

@@ -1,5 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
+#include <stm32_extmem_conf.h>
 #include "main.h"
 
 /**
@@ -9,7 +10,7 @@
 * @param  Value Register value pointer
 * @retval error status
 */
-uint32_t APS256_WriteReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value)
+static uint32_t APS256_WriteReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value)
 {
   XSPI_RegularCmdTypeDef sCommand1={0};
 
@@ -53,7 +54,7 @@ uint32_t APS256_WriteReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Val
 * @param  LatencyCode Latency used for the access
 * @retval error status
 */
-uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value, uint32_t LatencyCode)
+static uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Value, uint32_t LatencyCode)
 {
   XSPI_RegularCmdTypeDef sCommand={0};
 
@@ -75,22 +76,16 @@ uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Valu
   sCommand.DQSMode            = HAL_XSPI_DQS_ENABLE;
 
   /* Configure the command */
-  printf("HAL_XSPI_Command\n");
   if (HAL_XSPI_Command(Ctx, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
   {
-    printf("HAL_ERROR\n");
     return HAL_ERROR;
   }
-  printf("Done\n");
 
   /* Reception of the data */
-  printf("HAL_XSPI_Receive\n");
   if (HAL_XSPI_Receive(Ctx, (uint8_t *)Value, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
   {
-    printf("HAL_ERROR\n");
     return HAL_ERROR;
   }
-  printf("Done\n");
 
   return HAL_OK;
 }
@@ -102,8 +97,6 @@ uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Valu
 */
 void Configure_APMemory(void)
 {
-  printf("Configure_APMemory\n");
-
   /* MR0 register for read and write */
   uint8_t regW_MR0[2] = { 0x30, 0x8D }; /* To configure AP memory Latency Type and drive Strength */
   uint8_t regR_MR0[2] = { 0 };
@@ -119,76 +112,56 @@ void Configure_APMemory(void)
   uint8_t latency = 6;
 
   /* Configure Read Latency and drive Strength */
-  printf("APS256_WriteReg 1\n");
   if (APS256_WriteReg(&hxspi1, MR0, regW_MR0) != HAL_OK)
   {
-    printf("Error_Handler 1\n");
     Error_Handler();
   }
 
   /* Check MR0 configuration */
-  printf("APS256_ReadReg 1\n");
   if (APS256_ReadReg(&hxspi1, MR0, regR_MR0, latency ) != HAL_OK)
   {
-    printf("Error_Handler 1\n");
     Error_Handler();
   }
 
   /* Check MR0 configuration */
-  printf("Check 1\n");
   if (regR_MR0 [0] != regW_MR0 [0])
   {
-    printf("Error_Handler 1\n");
     Error_Handler() ;
   }
 
   /* Configure Write Latency */
-  printf("APS256_WriteReg 2\n");
   if (APS256_WriteReg(&hxspi1, MR4, regW_MR4) != HAL_OK)
   {
-    printf("Error_Handler 2\n");
     Error_Handler();
   }
 
   /* Check MR4 configuration */
-  printf("APS256_ReadReg 2\n");
   if (APS256_ReadReg(&hxspi1, MR4, regR_MR4, latency) != HAL_OK)
   {
-    printf("Error_Handler 2\n");
     Error_Handler();
   }
 
-  printf("Check 2\n");
   if (regR_MR4[0] != regW_MR4[0])
   {
-    printf("Error_Handler 2\n");
     Error_Handler() ;
   }
 
   /* Configure Burst Length */
-  printf("APS256_WriteReg 3\n");
   if (APS256_WriteReg(&hxspi1, MR8, regW_MR8) != HAL_OK)
   {
-    printf("Error_Handler 3\n");
     Error_Handler();
   }
 
   /* Check MR8 configuration */
-  printf("APS256_ReadReg 3\n");
   if (APS256_ReadReg(&hxspi1, MR8, regR_MR8, 6) != HAL_OK)
   {
-    printf("Error_Handler 3\n");
     Error_Handler();
   }
 
-  printf("Check 3\n");
   if (regR_MR8[0] != regW_MR8[0])
   {
-    printf("Error_Handler 3\n");
     Error_Handler() ;
   }
-
-  printf("Done\n");
 }
 
 /**
@@ -237,4 +210,27 @@ void Configure_APMemory_Mapped_Mode(void)
   {
     Error_Handler();
   }
+}
+
+/**
+* @brief  Bypass the Pre-scaler
+* @param  None
+* @retval None
+*/
+void Bypass_APMemory_Prescaler(void)
+{
+  /* change, XSPI1/PSRAM CLK: 200MHz */
+  HAL_XSPI_SetClockPrescaler(&hxspi1, 0);
+}
+
+/**
+* @brief  Map APMemory
+* @param  None
+* @retval None
+*/
+void Map_APMemory(void)
+{
+  Configure_APMemory();
+  Bypass_APMemory_Prescaler();
+  Configure_APMemory_Mapped_Mode();
 }

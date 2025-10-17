@@ -239,6 +239,15 @@ void SystemInit(void)
   RCC->AHB5RSTSR = RCC_AHB5RSTSR_XSPIMRSTS | RCC_AHB5RSTSR_XSPI2RSTS;
   RCC->AHB5RSTCR = RCC_AHB5RSTCR_XSPIMRSTC | RCC_AHB5RSTCR_XSPI2RSTC;
 
+  /* TIM2 reset */
+  RCC->APB1RSTSR1 = RCC_APB1RSTSR1_TIM2RSTS;
+  RCC->APB1RSTCR1 = RCC_APB1RSTCR1_TIM2RSTC;
+  /* Deactivate TIM2 clock */
+  RCC->APB1ENCR1 = RCC_APB1ENCR1_TIM2ENC;
+
+  /* Deactivate GPIOG clock */
+  RCC->AHB4ENCR = RCC_AHB4ENCR_GPIOGENC;
+
   /* Read back the value to make sure it is written before deactivating SYSCFG */
   (void) SYSCFG->INITSVTORCR;
   /* Deactivate SYSCFG clock */

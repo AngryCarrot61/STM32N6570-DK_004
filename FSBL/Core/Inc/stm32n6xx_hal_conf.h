@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
-  * @file    Template_FSBL_XIP/FSBL/Inc/stm32n6xx_hal_conf.h
-  * @author  GPM Application Team
+  * @file    stm32n6xx_hal_conf.h
+  * @author  MCD Application Team
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
@@ -51,6 +51,7 @@ extern "C" {
 //#define HAL_HASH_MODULE_ENABLED
 //#define HAL_HCD_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
+/*#define HAL_I2S_MODULE_ENABLED   */
 //#define HAL_I3C_MODULE_ENABLED
 //#define HAL_ICACHE_MODULE_ENABLED
 //#define HAL_IRDA_MODULE_ENABLED
@@ -74,6 +75,7 @@ extern "C" {
 //#define HAL_RTC_MODULE_ENABLED
 //#define HAL_SAI_MODULE_ENABLED
 //#define HAL_SD_MODULE_ENABLED
+/*#define HAL_SDIO_MODULE_ENABLED   */
 //#define HAL_SDRAM_MODULE_ENABLED
 //#define HAL_SMARTCARD_MODULE_ENABLED
 //#define HAL_SMBUS_MODULE_ENABLED
@@ -85,6 +87,9 @@ extern "C" {
 //#define HAL_USART_MODULE_ENABLED
 //#define HAL_WWDG_MODULE_ENABLED
 #define HAL_XSPI_MODULE_ENABLED
+/*#define HAL_CACHEAXI_MODULE_ENABLED   */
+/*#define HAL_MDIOS_MODULE_ENABLED   */
+/*#define HAL_GPU2D_MODULE_ENABLED   */
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**
@@ -118,7 +123,7 @@ extern "C" {
   *        (when HSI is used as system clock source, directly or through the PLL).
   */
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE          64000000UL /*!< Value of the High-Speed Internal oscillator in Hz */
+#define HSI_VALUE          64000000UL /*!< Value of the High-Speed Internal oscillator in Hz */
 #endif /* HSI_VALUE */
 
 /**
@@ -133,10 +138,9 @@ extern "C" {
   * @brief Internal Low Speed oscillator (LSI) value.
   */
 #if !defined  (LSI_VALUE)
-#define LSI_VALUE            32000UL    /*!< LSI Typical Value in Hz*/
-#endif /* LSI_VALUE */                  /*!< Value of the Internal Low Speed oscillator in Hz
-                                             The real value may vary depending on the variations in voltage
-                                             and temperature.*/
+#define LSI_VALUE            32000UL    /*!< LSI Typical Value in Hz */
+#endif /* LSI_VALUE */                  /*!< Value of the Internal Low Speed oscillator in Hz */
+/* The real value may vary depending on the variations in voltage and temperature.*/
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
    ===  you can define the HSE value in your toolchain compiler preprocessor. */
@@ -450,7 +454,6 @@ extern "C" {
 #ifdef HAL_XSPI_MODULE_ENABLED
 #include "stm32n6xx_hal_xspi.h"
 #endif /* HAL_XSPI_MODULE_ENABLED */
-
 
 /* Exported macros -----------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT

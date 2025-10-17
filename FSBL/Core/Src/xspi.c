@@ -20,7 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "xspi.h"
 
-#if 1
 /* USER CODE BEGIN 0 */
 #define HSLV_OTP 124
 #define VDDIO3_HSLV_MASK (1<<15)
@@ -91,6 +90,25 @@ void MX_XSPI2_Init(void)
 
   /* USER CODE END XSPI2_Init 1 */
   hxspi2.Instance = XSPI2;
+#if 1
+  /* 005 */
+  hxspi2.Init.FifoThresholdByte = 4;
+  hxspi2.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
+  hxspi2.Init.MemoryType = HAL_XSPI_MEMTYPE_MACRONIX;
+  hxspi2.Init.MemorySize = HAL_XSPI_SIZE_1GB;
+  hxspi2.Init.ChipSelectHighTimeCycle = 2;
+  hxspi2.Init.FreeRunningClock = HAL_XSPI_FREERUNCLK_DISABLE;
+  hxspi2.Init.ClockMode = HAL_XSPI_CLOCK_MODE_0;
+  hxspi2.Init.WrapSize = HAL_XSPI_WRAP_NOT_SUPPORTED;
+  hxspi2.Init.ClockPrescaler = 0;
+  hxspi2.Init.SampleShifting = HAL_XSPI_SAMPLE_SHIFT_NONE;
+  hxspi2.Init.DelayHoldQuarterCycle = HAL_XSPI_DHQC_ENABLE;
+  hxspi2.Init.ChipSelectBoundary = HAL_XSPI_BONDARYOF_NONE;
+  hxspi2.Init.MaxTran = 0;
+  hxspi2.Init.Refresh = 0;
+  hxspi2.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
+#else
+  /* 004 */
   hxspi2.Init.FifoThresholdByte = 1;
   hxspi2.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
   hxspi2.Init.MemoryType = HAL_XSPI_MEMTYPE_MACRONIX;
@@ -106,6 +124,8 @@ void MX_XSPI2_Init(void)
   hxspi2.Init.MaxTran = 0;
   hxspi2.Init.Refresh = 0;
   hxspi2.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
+#endif
+
   if (HAL_XSPI_Init(&hxspi2) != HAL_OK)
   {
     Error_Handler();
@@ -203,6 +223,7 @@ void HAL_XSPI_MspInit(XSPI_HandleTypeDef* xspiHandle)
   }
   else if(xspiHandle->Instance==XSPI2)
   {
+    /* START Esential part was missing in 005, but present in 004 to make jumping to the Appl possible! */
     BSEC_HandleTypeDef hbsec;
     uint32_t fuse_data = 0;
 
@@ -270,8 +291,8 @@ void HAL_XSPI_MspInit(XSPI_HandleTypeDef* xspiHandle)
       GPIO_InitStruct.Alternate = GPIO_AF9_XSPIM_P2;
       HAL_GPIO_Init(GPION, &GPIO_InitStruct);
     }
+    /* END Esential part was missing in 005, but present in 004 to make jumping to the Appl possible! */
 
-#if 0
   /* USER CODE BEGIN XSPI2_MspInit 0 */
 
   /* USER CODE END XSPI2_MspInit 0 */
@@ -318,7 +339,6 @@ void HAL_XSPI_MspInit(XSPI_HandleTypeDef* xspiHandle)
   /* USER CODE BEGIN XSPI2_MspInit 1 */
 
   /* USER CODE END XSPI2_MspInit 1 */
-#endif
 
   }
 }
@@ -411,4 +431,3 @@ void HAL_XSPI_MspDeInit(XSPI_HandleTypeDef* xspiHandle)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-#endif

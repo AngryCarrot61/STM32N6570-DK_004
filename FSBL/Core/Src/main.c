@@ -1,12 +1,11 @@
 /**
   ******************************************************************************
-  * @file    Template_FSBL_XIP/FSBL/Src/main.c
-  * @author  GPM Application Team
-  * @brief   Main program body through the HAL API
+  * @file           : main.c
+  * @brief          : Main program body
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -36,7 +35,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
-static void SystemClock_Config(void);
+void SystemClock_Config(void);
+void PeriphCommonClock_Config(void);
 static void MPU_Config(void);
 void Error_Handler(void);
 
@@ -59,6 +59,10 @@ int __io_putchar(int ch)
   */
 int main(void)
 {
+  /* USER CODE BEGIN 1 */
+  SCB_InvalidateDCache();
+  SCB_InvalidateICache();
+
   /* Enable and set up the MPU------------------------------------------------*/
   MPU_Config();
 
@@ -68,21 +72,17 @@ int main(void)
   /* Enable D-Cache-----------------------------------------------------------*/
   SCB_EnableDCache();
 
+  /* USER CODE END 1 */
+
   /* MCU Configuration--------------------------------------------------------*/
 
-  /* STM32N6xx HAL library initialization:
-       - Systick timer is configured by default as source of time base, but user
-             can eventually implement his proper time base source (a general purpose
-             timer for example or other time source), keeping in mind that Time base
-             duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and
-             handled in milliseconds basis.
-       - Set NVIC Group Priority to 4
-       - Low Level Initialization
-     */
   HAL_Init();
 
   /* Configure the system clock */
   SystemClock_Config();
+
+  /* Configure the peripherals common clocks */
+  PeriphCommonClock_Config();
 
 #ifndef NO_OTP_FUSE
   /* Set OTP fuses for XSPI IO pins speed optimization */
@@ -97,24 +97,15 @@ int main(void)
 
   MX_USART1_UART_Init();
 
-  printf("Hello world\n");
+  printf("\nHello STM32N6 world!\n");
 
   /* Add your application code here */
   MX_XSPI1_Init();
   MX_XSPI2_Init();
 
-  /* Initialise the serial memory */
-  MX_EXTMEM_Init();
-
-#if 0
-  Configure_APMemory();
-
-  /* Bypass the Pre-scaler */
-  HAL_XSPI_SetClockPrescaler(&hxspi1, 0);// change, XSPI1/PSRAM CLK: 200MHz
-
-  printf("Configure_APMemory_Mapped_Mode\n");
-  Configure_APMemory_Mapped_Mode();
-  printf("Done\n");
+#if 1
+  printf("Configure_APMemory\n");
+  Map_APMemory();
 #endif
 
 //  printf("boot\n");
@@ -132,20 +123,57 @@ int main(void)
   }
 #endif
 
-  printf("BOOT_Application\n");
-  BOOT_Application();
-  /* We should never get here as execution is now from user application */
-  while(1)
+  /* USER CODE BEGIN 2 */
+
+#if 1
+  printf("----------\n");
+  printf("Accessing external memory ");
+  *((uint32_t *) XSPI1_BASE) = 0x12345678;
+  uint32_t data = *((uint32_t *) XSPI1_BASE);
+  if (data == 0x12345678)
   {
-    __NOP();
+    printf("PASSED!\n");
   }
+  else
+  {
+    printf("FAILED!\n");
+  }
+  printf("----------\n");
+
+  *((uint32_t *) 0x90000000 + (800*240+400) * 4) = 0x55;
+#endif
+
+  /* Initialize the serial memory */
+  printf("Initialize the serial memory\n");
+  MX_EXTMEM_Init(); /* Makes jump possible */
+//  MX_EXTMEM_MANAGER_Init();
+
+  /* USER CODE END 2 */
+
+  /* Launch the application */
+  printf("BOOT_Application\n");
+  if (BOOT_OK != BOOT_Application())
+  {
+    Error_Handler();
+  }
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
 }
+/* USER CODE BEGIN CLK 1 */
+/* USER CODE END CLK 1 */
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-static void SystemClock_Config(void)
+void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -170,6 +198,9 @@ static void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /* Wait HSE stabilization time before its selection as PLL source. */
+  HAL_Delay(HSE_STARTUP_TIMEOUT);
 
   /** Get current CPU/System buses clocks configuration and if necessary switch
  to intermediate HSI clock to ensure target clock can be set
@@ -191,17 +222,31 @@ static void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_NONE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL1.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL1.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL1.PLLM = 4;
-  RCC_OscInitStruct.PLL1.PLLN = 75;
+  RCC_OscInitStruct.PLL1.PLLN = 100;
   RCC_OscInitStruct.PLL1.PLLFractional = 0;
   RCC_OscInitStruct.PLL1.PLLP1 = 1;
   RCC_OscInitStruct.PLL1.PLLP2 = 1;
   RCC_OscInitStruct.PLL2.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL3.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL4.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL3.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL3.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL3.PLLM = 1;
+  RCC_OscInitStruct.PLL3.PLLN = 25;
+  RCC_OscInitStruct.PLL3.PLLFractional = 0;
+  RCC_OscInitStruct.PLL3.PLLP1 = 1;
+  RCC_OscInitStruct.PLL3.PLLP2 = 1;
+  RCC_OscInitStruct.PLL4.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL4.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL4.PLLM = 3;
+  RCC_OscInitStruct.PLL4.PLLN = 250;
+  RCC_OscInitStruct.PLL4.PLLFractional = 0;
+  RCC_OscInitStruct.PLL4.PLLP1 = 1;
+  RCC_OscInitStruct.PLL4.PLLP2 = 1;
+
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -223,11 +268,11 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.IC1Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
   RCC_ClkInitStruct.IC1Selection.ClockDivider = 2;
   RCC_ClkInitStruct.IC2Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC2Selection.ClockDivider = 3;
-  RCC_ClkInitStruct.IC6Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC6Selection.ClockDivider = 4;
+  RCC_ClkInitStruct.IC2Selection.ClockDivider = 4;
+  RCC_ClkInitStruct.IC6Selection.ClockSelection = RCC_ICCLKSOURCE_PLL4;
+  RCC_ClkInitStruct.IC6Selection.ClockDivider = 2;
   RCC_ClkInitStruct.IC11Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC11Selection.ClockDivider = 4;
+  RCC_ClkInitStruct.IC11Selection.ClockDivider = 2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct) != HAL_OK)
   {
@@ -236,121 +281,18 @@ static void SystemClock_Config(void)
 }
 
 /**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follows :
-  *            CPU Clock source               = IC1_CK
-  *            System bus Clock source        = IC2_IC6_IC11_CK
-  *            CPUCLK (sysa_ck) (Hz)          = 600000000
-  *            SYSCLK AXI (sysb_ck) (Hz)      = 400000000
-  *            SYSCLK NPU (sysc_ck) (Hz)      = 300000000
-  *            SYSCLK AXISRAM3/4/5/6 (sysd_ck) (Hz) = 400000000
-  *            HCLKx(Hz)                      = 200000000
-  *            PCLKx(Hz)                      = 200000000
-  *            AHB Prescaler                  = 2
-  *            APB1 Prescaler                 = 1
-  *            APB2 Prescaler                 = 1
-  *            APB4 Prescaler                 = 1
-  *            APB5 Prescaler                 = 1
-  *            PLL1 State                     = ON
-  *            PLL1 clock source              = HSI
-  *            PLL1 M                         = 4
-  *            PLL1 N                         = 75
-  *            PLL1 P1                        = 1
-  *            PLL1 P2                        = 1
-  *            PLL1 FRACN                     = 0
-  *            PLL2 State                     = BYPASS
-  *            PLL2 clock source              = HSI
-  *            PLL3 State                     = BYPASS
-  *            PLL3 clock source              = HSI
-  *            PLL4 State                     = BYPASS
-  *            PLL4 clock source              = HSI
+  * @brief Peripherals Common Clock Configuration
   * @retval None
   */
-static void SystemClock_Config_Org(void)
+void PeriphCommonClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-  /** Configure the System Power Supply
+  /** Initializes the peripherals clock
   */
-  if (HAL_PWREx_ConfigSupply(PWR_EXTERNAL_SOURCE_SUPPLY) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /* Enable HSI */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL1.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL2.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL3.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL4.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Get current CPU/System buses clocks configuration and if necessary switch
-  * to intermediate HSI clock to ensure target clock can be set
-  */
-  HAL_RCC_GetClockConfig(&RCC_ClkInitStruct);
-  if ((RCC_ClkInitStruct.CPUCLKSource == RCC_CPUCLKSOURCE_IC1) ||
-      (RCC_ClkInitStruct.SYSCLKSource == RCC_SYSCLKSOURCE_IC2_IC6_IC11))
-  {
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_CPUCLK | RCC_CLOCKTYPE_SYSCLK);
-    RCC_ClkInitStruct.CPUCLKSource = RCC_CPUCLKSOURCE_HSI;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct) != HAL_OK)
-    {
-      /* Initialization Error */
-      Error_Handler();
-    }
-  }
-
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_NONE;
-  RCC_OscInitStruct.PLL1.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL1.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL1.PLLM = 4;
-  RCC_OscInitStruct.PLL1.PLLN = 75;
-  RCC_OscInitStruct.PLL1.PLLFractional = 0;
-  RCC_OscInitStruct.PLL1.PLLP1 = 1;
-  RCC_OscInitStruct.PLL1.PLLP2 = 1;
-  RCC_OscInitStruct.PLL2.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL3.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL4.PLLState = RCC_PLL_NONE;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_CPUCLK|RCC_CLOCKTYPE_HCLK
-                              |RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
-                              |RCC_CLOCKTYPE_PCLK2|RCC_CLOCKTYPE_PCLK5
-                              |RCC_CLOCKTYPE_PCLK4;
-  RCC_ClkInitStruct.CPUCLKSource = RCC_CPUCLKSOURCE_IC1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_IC2_IC6_IC11;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
-  RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
-  RCC_ClkInitStruct.APB5CLKDivider = RCC_APB5_DIV1;
-  RCC_ClkInitStruct.IC1Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC1Selection.ClockDivider = 2;
-  RCC_ClkInitStruct.IC2Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC2Selection.ClockDivider = 3;
-  RCC_ClkInitStruct.IC6Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC6Selection.ClockDivider = 4;
-  RCC_ClkInitStruct.IC11Selection.ClockSelection = RCC_ICCLKSOURCE_PLL1;
-  RCC_ClkInitStruct.IC11Selection.ClockDivider = 3;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct) != HAL_OK)
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_TIM;
+  PeriphClkInitStruct.TIMPresSelection = RCC_TIMPRES_DIV1;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
@@ -489,7 +431,9 @@ static void MPU_Config(void)
   */
 void Error_Handler(void)
 {
-  /* User may add here some code to deal with this error */
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+//  __disable_irq();
   while(1)
   {
     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
@@ -497,9 +441,10 @@ void Error_Handler(void)
 //    for (volatile uint32_t i = 0; i < 1000000; i++);
     HAL_Delay(200);
   }
+  /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -509,12 +454,14 @@ void Error_Handler(void)
   */
 void assert_failed(uint8_t *file, uint32_t line)
 {
+  /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
 
   /* Infinite loop */
   while (1)
   {
   }
 }
-#endif
+#endif /* USE_FULL_ASSERT */

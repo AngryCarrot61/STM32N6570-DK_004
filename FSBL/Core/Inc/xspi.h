@@ -31,7 +31,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
-#if 1
+
 extern XSPI_HandleTypeDef hxspi1;
 
 extern XSPI_HandleTypeDef hxspi2;
@@ -42,7 +42,6 @@ extern XSPI_HandleTypeDef hxspi2;
 
 void MX_XSPI1_Init(void);
 void MX_XSPI2_Init(void);
-#endif
 
 /* USER CODE BEGIN Prototypes */
 
