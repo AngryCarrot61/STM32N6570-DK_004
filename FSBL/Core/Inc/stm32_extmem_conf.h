@@ -179,7 +179,7 @@ EXTMEM_DefinitionTypeDef extmem_list_config[EXTMEM_DRIVER_COUNT] =
         .Write_command     = 0xA0u,
         .Write_DummyCycle  = 4u,
         .Read_command      = 0x20u,
-        .WrapRead_command  = 0x00u;
+        .WrapRead_command  = 0x00u,
         .Read_DummyCycle   = 4u,
       }
     }
